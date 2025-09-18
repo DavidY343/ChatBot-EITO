@@ -1,0 +1,9 @@
+django>=4.2
+djangorestframework
+psycopg2-binary>=2.9.0
+gunicorn
+python-dotenv
+requests
+openai>=1.0.0
+
+

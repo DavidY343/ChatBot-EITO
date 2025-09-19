@@ -1,114 +1,106 @@
-# ChatBot-EITO
+# ChatBot-EITR
 
-**Django-based Chatbot for Pre-Interview Simulation**
+**Django Chatbot Deployed on Azure for Pre-Interview Simulation**
 
 ## 🧠 Overview
 
-ChatBot-EITO is a Django application that simulates conversations between chatbot instances to determine users' food preferences and whether they are vegetarian or vegan. This project was created as a demo for a pre-interview assignment.
+ChatBot-EITR is a Django application deployed on **Azure App Service**, simulating chatbot conversations to determine users’ food preferences and whether they are vegetarian or vegan. All endpoints and features are accessible via the live Azure URL.
+
+**Live App URL:** [https://eito-chatbot.azurewebsites.net](https://eito-chatbot.azurewebsites.net)
 
 ## ✨ Key Features
 
 ### Simulated Chat Conversations
-- ChatGPT A asks for three favorite foods.
+- ChatGPT A asks users for their three favorite foods.
 - ChatGPT B responds with dynamic/randomized answers.
-- A third ChatGPT instance analyzes the responses to determine if the user is vegetarian or vegan.
-- A 30% probability is used to simulate vegan responses for variability.
+- A third ChatGPT instance analyzes the responses to classify users as vegetarian or vegan.
+- 30% probability is applied for vegan responses to introduce variability.
 
 ### Django REST API
-- Provides an endpoint to retrieve users classified as vegetarian or vegan.
-- Basic authentication is implemented for demonstration purposes.
+All endpoints are accessible from Azure and protected with **Basic Authentication** (demo credentials only – must be changed in production):
+
+- **`/api/vegans/`**: Retrieves users classified as vegetarian or vegan. *(Requires authentication)*
+- **`/api/simulate/`**: Run a new simulation of users and their responses.
+- **`/api/statistics/`**: Aggregated statistics showing veg vs non-veg counts and top foods.
+- **`/api/chat/`**: Real-time chat endpoint powered by OpenAI GPT-3.5.
+
+### Frontend
+- Basic HTML/CSS/JS interface for interacting with the chat API.
+- Dashboard page shows simulation results in a simple interface.
+- Separate pages for Home, Chat, and Dashboard.
+
+### Security (Demo)
+- All secrets, including `OPENAI_API_KEY` and `DJANGO_SECRET_KEY`, are stored securely in Azure App Settings.
+- API endpoints are protected via **Basic Authentication** or Django login.
+- Demo credentials (must be changed for a real production proyect):
+  - Admin: `admin` / `admin123`
+  - User: `user` / `user123`
 
 ### OpenAI Integration
-- Uses ChatGPT 3.5 to generate realistic responses while keeping costs low.
+- Uses ChatGPT 3.5 to generate realistic chat responses.
+- API usage optimized to reduce costs.
 
-### Frontend Demo
-- Basic HTML/CSS/JS interface for chatting with the bot.
-- Designed for simplicity and demonstration.
+## 📁 Project Structure (Relevant for Azure Deployment)
 
-### Secure Environment
-- All sensitive information (API keys, secrets) is stored in a `.env` file and excluded from the repository.
-
-## 📁 Project Structure
-
-```
-ChatBot-EITO/
+ChatBot-EITR/
 │
-├─ app/                   # Django app
-├─ project/               # Django project settings
-├─ static/                # Static files (CSS, JS)
-├─ templates/             # HTML templates
-├─ Dockerfile             # Docker configuration
-├─ docker-compose.yml     # Docker Compose setup
-├─ requirements.txt       # Python dependencies
-├─ .env.example           # Example environment variables
+├─ app/ # Django app: views, models, serializers, API endpoints
+├─── templates/ # HTML templates
+├─ project/ # Django project settings
+├─ Dockerfile # Docker image built and deployed on Azure
+├─ entrypoint.sh # Entrypoint for migrations, user creation, and starting Gunicorn
+├─ requirements.txt # Python dependencies
 └─ README.md
-```
 
-## 🚀 Getting Started
 
-### Prerequisites
-- Docker & Docker Compose
-- Python 3.11+
-- OpenAI API key (stored in `.env`)
-- Django 4.x and DRF installed via `requirements.txt`
+## ☁️ Azure Deployment
 
-### Running Locally
-
-Clone the repository:
-
-```bash
-git clone https://github.com/<your-username>/ChatBot-EITO.git
-cd ChatBot-EITO
-```
-
-Copy `.env.example` to `.env` and add your secrets:
-
-```bash
-cp .env.example .env
-```
-
-Build and run the Docker containers:
-
-```bash
-docker-compose up --build
-```
-
-Access the app:
-
-- Frontend: [http://localhost:8000/](http://localhost:8000/)
-- API: [http://localhost:8000/api/vegans/](http://localhost:8000/api/vegans/) *(requires authentication)*
-
-## ☁️ Deployment on Azure (Optional)
-
-Push your Docker image to Docker Hub:
+1. Docker image pushed to Docker Hub:
 
 ```bash
 docker build -t <dockerhub-username>/chatbot-eito:latest .
+docker tag chatbot-eito:latest <dockerhub-username>/chatbot-eito:latest
 docker push <dockerhub-username>/chatbot-eito:latest
 ```
 
-Create an Azure Web App (Linux, Docker) and configure it to pull your image.
+## ☁️ Azure Web App Configuration
 
-Add your environment variables (`OPENAI_API_KEY`, `DJANGO_SECRET_KEY`, etc.) in Azure App Settings.
+- Azure Web App (Linux, Docker) created and configured to pull the image.
 
-Visit your Azure Web App URL to see the live application.
+### 🔧 Environment Variables (Azure App Settings)
 
-## 📝 Notes / Design Decisions
+```env
+OPENAI_API_KEY
+DJANGO_SECRET_KEY
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+DB_HOST
+DB_PORT
+```
+## 🚀 App Launch & Setup
 
-- A third ChatGPT instance is used to determine vegan/vegetarian status because the assignment didn’t specify classification logic.
-- Basic authentication is implemented for demo purposes only.
-- The frontend interface is simple; for production it should be separated and optimized.
-- ChatGPT 3.5 is chosen to reduce API costs while maintaining realistic behavior.
-- Azure deployment was slightly delayed due to initial configuration challenges.
+App started successfully at [https://eito-chatbot.azurewebsites.net](https://eito-chatbot.azurewebsites.net)
 
-## 🔐 Credentials (Demo)
+> ℹ️ **Note:** The app automatically runs migrations and creates demo users on startup via `setup.sh`.
 
-- Admin: `admin` / `admin123`
-- User: `user` / `user123`
-- API Endpoint: `/api/vegans/` *(requires authentication)*
+## 🎯 New Functionalities / Updates
 
-## 🎯 Bonus / Future Improvements
+- **Statistics API**: `/api/statistics/` – Shows veg vs non-veg counts and most popular foods.
+- **Simulation API**: `/api/simulate/` – Generate simulated users dynamically.
+- **Chat API**: `/api/chat/` – Interact with the bot using OpenAI GPT-3.5.
+- **Authentication-secured endpoints**: Ensures demo credentials are required to access sensitive data.
+- **Frontend updated** with separate pages for dashboard, chat, and home.
 
-- Separate HTML, CSS, and JS for a cleaner frontend.
-- Implement more interactive chat features.
-- Add richer statistics or dashboards for simulated users.
+## 🔐 Security Disclaimer
+
+- All credentials are for demo purposes only.
+- Must change admin/user passwords and API keys in production deployments.
+- `.env` files are never committed; all secrets are stored securely in Azure App Settings.
+
+## 💡 Notes
+
+- Designed for Azure-first deployment, no local setup required.
+- Docker-based deployment ensures consistency across environments.
+- ChatGPT classification logic is simplified for demonstration purposes.
+- Frontend is minimal; can be enhanced with separate HTML, CSS, and JS for production dashboards.

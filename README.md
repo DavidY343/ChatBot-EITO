@@ -82,7 +82,7 @@ DB_PORT
 
 App started successfully at [https://eito-chatbot.azurewebsites.net](https://eito-chatbot.azurewebsites.net)
 
-> ℹ️ **Note:** The app automatically runs migrations and creates demo users on startup via `setup.sh`.
+> ℹ️ **Note:** The app automatically runs migrations and creates demo users on startup via `entrypoint.sh`.
 
 ## 🎯 New Functionalities / Updates
 

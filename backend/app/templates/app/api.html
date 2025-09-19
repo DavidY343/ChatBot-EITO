@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatBot EITO API Interface</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+    h2 { color: #4CAF50; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
+    .section { margin-bottom: 30px; }
+    textarea { width: 100%; height: 150px; }
+    button { background: #4CAF50; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+    pre { background: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>ChatBot EITO API Interface</h1>
+
+    <!-- Vegans -->
+    <div class="section">
+        <h2>Vegan Users</h2>
+        <button onclick="getVegans()">Load Vegan Users</button>
+        <pre id="vegansOutput">Click the button to see vegan users...</pre>
+    </div>
+
+    <!-- Simulation -->
+    <div class="section">
+        <h2>Run Simulation</h2>
+        <button onclick="runSimulation()">Run 100 Conversations</button>
+        <pre id="simulationOutput">Click the button to start simulation...</pre>
+    </div>
+
+    <!-- Statistics -->
+    <div class="section">
+        <h2>Statistics</h2>
+        <button onclick="getStatistics()">Get Statistics</button>
+        <pre id="statsOutput">Click the button to see statistics...</pre>
+    </div>
+
+    <!-- Chat -->
+    <div class="section">
+        <h2>Chat API</h2>
+        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter'){sendChat()}">
+        <button onclick="sendChat()">Send</button>
+        <pre id="chatOutput">Messages will appear here...</pre>
+    </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+
+async function getVegans() {
+    try {
+        const response = await fetch(`${API_BASE}/vegans/`, {credentials: 'include'});
+        const data = await response.json();
+        document.getElementById('vegansOutput').textContent = JSON.stringify(data, null, 2);
+    } catch(e) {
+        document.getElementById('vegansOutput').textContent = 'Error: ' + e;
+    }
+}
+
+async function runSimulation() {
+    try {
+        const response = await fetch(`${API_BASE}/simulate/`, {method: 'POST', credentials: 'include'});
+        const data = await response.json();
+        document.getElementById('simulationOutput').textContent = JSON.stringify(data, null, 2);
+    } catch(e) {
+        document.getElementById('simulationOutput').textContent = 'Error: ' + e;
+    }
+}
+
+async function getStatistics() {
+    try {
+        const response = await fetch(`${API_BASE}/statistics/`, {credentials: 'include'});
+        const data = await response.json();
+        document.getElementById('statsOutput').textContent = JSON.stringify(data, null, 2);
+    } catch(e) {
+        document.getElementById('statsOutput').textContent = 'Error: ' + e;
+    }
+}
+
+async function sendChat() {
+    const message = document.getElementById('chatInput').value;
+    if (!message) return;
+    try {
+        const response = await fetch(`${API_BASE}/chat/`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message}),
+            credentials: 'include'
+        });
+        const data = await response.json();
+        const chatBox = document.getElementById('chatOutput');
+        chatBox.textContent += `You: ${message}\nBot: ${data.message}\n\n`;
+        document.getElementById('chatInput').value = '';
+    } catch(e) {
+        document.getElementById('chatOutput').textContent += 'Error: ' + e;
+    }
+}
+</script>
+</body>
+</html>

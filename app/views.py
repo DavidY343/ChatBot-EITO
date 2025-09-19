@@ -69,22 +69,50 @@ class StatisticsView(APIView):
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# @csrf_exempt
+# def chat_api(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         user_message = data.get("message", "")
+
+#         resp = client.chat.completions.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {"role": "system", "content": "You are a vegan chatbot assistant."},
+#                 {"role": "user", "content": user_message},
+#             ],
+#             temperature=0.9,
+#             max_tokens=150
+#         )
+
+#         bot_message = resp.choices[0].message.content
+#         return JsonResponse({"message": bot_message})
+#     return JsonResponse({"error": "POST method required"}, status=400)
+
 @csrf_exempt
 def chat_api(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        user_message = data.get("message", "")
+    if request.method != "POST":
+        return JsonResponse({"error": "POST method required"}, status=400)
 
-        resp = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a vegan chatbot assistant."},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=0.9,
-            max_tokens=150
-        )
+    data = json.loads(request.body)
+    user_message = data.get("message", "")
 
-        bot_message = resp.choices[0].message.content
-        return JsonResponse({"message": bot_message})
-    return JsonResponse({"error": "POST method required"}, status=400)
+    # FIRST MESSAGE
+    if user_message == "__start__":
+        return JsonResponse({
+            "message": "Hi! 🍴 I'm your foodie assistant. Tell me your 3 favourite foods!"
+        })
+
+    # Noraml conversation
+    resp = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a foodie assistant. Be conversational and friendly."},
+            {"role": "user", "content": user_message},
+        ],
+        temperature=0.9,
+        max_tokens=150
+    )
+
+    bot_message = resp.choices[0].message.content
+    return JsonResponse({"message": bot_message})

@@ -24,7 +24,7 @@ def get_favorite_foods():
         messages=[
             {"role": "system", "content": "You are a person giving your top 3 favorite foods."},
             {"role": "user", "content": "Give exactly 3 favorite foods in JSON array format. "
-                                    "30% of the time, they should be vegetarian (no meat, no fish). "
+                                    "30% of the time, they should be vegetarian or vegan (no meat, no fish). "
                                     "Example: [\"salad\",\"pasta\",\"tofu\"] or [\"pizza\",\"sushi\",\"chocolate\"]"}
         ],
         max_tokens=60,

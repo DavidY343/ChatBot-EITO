@@ -6,7 +6,7 @@
 
 ChatBot-EITR is a Django application deployed on **Azure App Service**, simulating chatbot conversations to determine users’ food preferences and whether they are vegetarian or vegan. All endpoints and features are accessible via the live Azure URL.
 
-**Live App URL:** [https://eito-chatbot.azurewebsites.net](https://eito-chatbot.azurewebsites.net)
+**Live App URL:** [https://eito-chatbot.azurewebsites.net](https://eito-chatbot-fnfjhyhtcwd4a2gx.westeurope-01.azurewebsites.net)
 
 ## ✨ Key Features
 
@@ -45,7 +45,7 @@ All endpoints are accessible from Azure and protected with **Basic Authenticatio
 ChatBot-EITR/
 │
 ├─ app/ # Django app: views, models, serializers, API endpoints
-├─── templates/ # HTML templates
+├─ templates/ # HTML templates
 ├─ project/ # Django project settings
 ├─ Dockerfile # Docker image built and deployed on Azure
 ├─ entrypoint.sh # Entrypoint for migrations, user creation, and starting Gunicorn
@@ -80,7 +80,7 @@ DB_PORT
 ```
 ## 🚀 App Launch & Setup
 
-App started successfully at [https://eito-chatbot.azurewebsites.net](https://eito-chatbot.azurewebsites.net)
+App started successfully at [https://eito-chatbot.azurewebsites.net](https://eito-chatbot-fnfjhyhtcwd4a2gx.westeurope-01.azurewebsites.net)
 
 > ℹ️ **Note:** The app automatically runs migrations and creates demo users on startup via `entrypoint.sh`.
 

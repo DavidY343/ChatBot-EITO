@@ -23,10 +23,8 @@ def chat_page(request):
     return render(request, 'app/chat.html')
 
 
-@login_required
-def dashboard_page(request):
-    return render(request, 'app/dashboard.html')
-
+def api_interface_page(request):
+    return render(request, 'app/api.html')
 
 # Endpoint: Protected
 class VeganUsersView(APIView):
@@ -49,30 +47,25 @@ def run_simulation(request):
 
 # Endpoint: Stats (additional)
 class StatisticsView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get(self, request):
-        total = SimulatedUser.objects.count()
-        veg = SimulatedUser.objects.filter(is_vegan_or_vegetarian=True).count()
-        non_veg = total - veg
+        try:
+            veg_count = SimulatedUser.objects.filter(is_vegan_or_vegetarian=True).count()
+            non_veg_count = SimulatedUser.objects.filter(is_vegan_or_vegetarian=False).count()
 
-        # TOP favorite foods
-        foods = []
-        for u in SimulatedUser.objects.all():
-            if u.favorite_foods:
-                try:
-                    foods.extend(u.favorite_foods.split(","))
-                except AttributeError:
-                    pass
-        top_foods = Counter([f.strip() for f in foods if f.strip()]).most_common(5)
+            # Top 5 foods
+            all_foods = []
+            for user in SimulatedUser.objects.all():
+                all_foods.extend(user.favorites or [])
 
-        return Response({
-            "total_users": total,
-            "vegans_or_vegetarians": veg,
-            "non_veg": non_veg,
-            "top_foods": top_foods
-        })
+            top_foods = Counter(all_foods).most_common(5)
 
+            return Response({
+                'veg_count': veg_count,
+                'non_veg_count': non_veg_count,
+                'top_foods': top_foods
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 

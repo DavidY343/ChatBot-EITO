@@ -3,7 +3,6 @@ set -e
 
 echo "Applying migrations..."
 python manage.py migrate --noinput
-python manage.py collectstatic --noinput
 
 echo "Creating users..."
 python app/create_users.py || true

@@ -58,7 +58,7 @@ def verify_vegetarian(favorites):
     result = resp.choices[0].message.content.strip().lower()
     return result in ["vegan", "vegetarian"]
 
-def simulate(n=100):
+def simulate(n=10):
     for i in range(n):
         if USE_MOCK:
             sample_foods = ["pizza", "pasta", "sushi", "salad", "falafel", "steak", "tofu", "ramen", "curry", "paella"]

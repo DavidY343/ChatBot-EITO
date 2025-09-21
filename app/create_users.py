@@ -23,7 +23,7 @@ def create_normal_user():
     """Create normal user"""
     if not User.objects.filter(username='user').exists():
         User.objects.create_user('user', 'user@eito.com', 'usesr123')
-        print("User 'user' created with password: user123")
+        print("User 'user' created with password: usesr123")
     else:
         print("User 'user' already exists")
 

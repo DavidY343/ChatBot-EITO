@@ -13,7 +13,10 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-secret')
 DEBUG = os.getenv('DEBUG', '1') == '1'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "chatbot-eito-web.azurewebsites.net",
+    "eito-chatbot-fnfjhyhtcwd4a2gx.westeurope-01.azurewebsites.net",
+]
 
 DATABASES = {
     'default': {

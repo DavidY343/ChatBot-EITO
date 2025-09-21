@@ -1,18 +1,17 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import SimulatedUser
+from .models import SimulatedUser, ChatMessage
 from .serializers import SimulatedUserSerializer
 from .simulate import simulate
 from collections import Counter
 from openai import OpenAI
 import os
-import json
+import json, uuid
 
 
 def home_page(request):
@@ -89,6 +88,75 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 #         return JsonResponse({"message": bot_message})
 #     return JsonResponse({"error": "POST method required"}, status=400)
 
+# @csrf_exempt
+# def chat_api(request):
+#     if request.method != "POST":
+#         return JsonResponse({"error": "POST method required"}, status=400)
+
+#     data = json.loads(request.body)
+#     user_message = data.get("message", "")
+
+#     # FIRST MESSAGE
+#     if user_message == "__start__":
+#         return JsonResponse({
+#             "message": "Hi! 🍴 I'm your foodie assistant. Tell me your 3 favourite foods!"
+#         })
+
+#     # Noraml conversation
+#     resp = client.chat.completions.create(
+#         model="gpt-3.5-turbo",
+#         messages=[
+#             {"role": "system", "content": "You are a foodie assistant. Be conversational and friendly."},
+#             {"role": "user", "content": user_message},
+#         ],
+#         temperature=0.9,
+#         max_tokens=150
+#     )
+
+#     bot_message = resp.choices[0].message.content
+#     return JsonResponse({"message": bot_message})
+
+
+# @csrf_exempt
+# def chat_api(request):
+#     if request.method != "POST":
+#         return JsonResponse({"error": "POST method required"}, status=400)
+
+#     data = json.loads(request.body)
+#     user_message = data.get("message", "")
+
+#     # Retrieve history
+#     history = request.session.get("chat_history", [])
+
+#     # FIRST MESSAGE
+#     if user_message == "__start__":
+#         bot_message = "Hi! 🍴 I'm your foodie assistant. Tell me your 3 favourite foods!"
+#         # Reset history
+#         history = [
+#             {"role": "system", "content": "You are a foodie assistant. Be conversational and friendly."},
+#             {"role": "assistant", "content": bot_message},
+#         ]
+#         request.session["chat_history"] = history
+#         return JsonResponse({"message": bot_message})
+
+#     # Build the full prompt
+#     history.append({"role": "user", "content": user_message})
+
+#     resp = client.chat.completions.create(
+#         model="gpt-3.5-turbo",
+#         messages=history,
+#         temperature=0.9,
+#         max_tokens=150
+#     )
+
+#     bot_message = resp.choices[0].message.content
+
+#     # Guardar respuesta en historial
+#     history.append({"role": "assistant", "content": bot_message})
+#     request.session["chat_history"] = history
+
+#     return JsonResponse({"message": bot_message})
+
 @csrf_exempt
 def chat_api(request):
     if request.method != "POST":
@@ -96,23 +164,39 @@ def chat_api(request):
 
     data = json.loads(request.body)
     user_message = data.get("message", "")
+    session_id = request.session.get("chat_session_id")
 
-    # FIRST MESSAGE
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        request.session["chat_session_id"] = session_id
+
+    # First message
     if user_message == "__start__":
-        return JsonResponse({
-            "message": "Hi! 🍴 I'm your foodie assistant. Tell me your 3 favourite foods!"
-        })
+        bot_message = "Hi! 🍴 I'm your foodie assistant. Tell me your 3 favourite foods!"
 
-    # Noraml conversation
+        # Reset history in DB
+        ChatMessage.objects.filter(session_id=session_id).delete()
+
+        ChatMessage.objects.create(session_id=session_id, role="system", content="You are a foodie assistant. Be conversational and friendly.")
+        ChatMessage.objects.create(session_id=session_id, role="assistant", content=bot_message)
+
+        return JsonResponse({"message": bot_message})
+
+    # Sabe message
+    ChatMessage.objects.create(session_id=session_id, role="user", content=user_message)
+
+    # Retrieve conversation
+    history = ChatMessage.objects.filter(session_id=session_id).values("role", "content")
+
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a foodie assistant. Be conversational and friendly."},
-            {"role": "user", "content": user_message},
-        ],
+        messages=list(history),
         temperature=0.9,
         max_tokens=150
     )
 
     bot_message = resp.choices[0].message.content
+
+    ChatMessage.objects.create(session_id=session_id, role="assistant", content=bot_message)
+
     return JsonResponse({"message": bot_message})

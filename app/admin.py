@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import SimulatedUser
+from .models import SimulatedUser, ChatMessage
+
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ("session_id", "role", "content", "created_at")
+    list_filter = ("role", "created_at")
+    search_fields = ("session_id", "content")
 
 @admin.register(SimulatedUser)
 class SimulatedUserAdmin(admin.ModelAdmin):

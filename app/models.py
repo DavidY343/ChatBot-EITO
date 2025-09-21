@@ -8,3 +8,15 @@ class SimulatedUser(models.Model):
 
     def __str__(self):
         return self.name
+
+class ChatMessage(models.Model):
+    session_id = models.CharField(max_length=255)  # unique_ID
+    role = models.CharField(max_length=20)  # "system", "user", "assistant"
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.session_id} - {self.role}: {self.content[:30]}"
